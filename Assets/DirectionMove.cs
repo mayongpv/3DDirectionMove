@@ -5,50 +5,90 @@ using UnityEngine;
 public class DirectionMove : MonoBehaviour
 {
     Animator animator;
+    // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         lastMoveDirection = transform.forward;
+
+        //aimationLength 초기화.
     }
+
+    Dictionary<string, float> aimationLength = null;
+
     void Update()
     {
-        Vector3 move = Vector3.zero;
-        if (Input.GetKey(KeyCode.A)) move.z = -1;
-        if (Input.GetKey(KeyCode.D)) move.z = 1;
-        if (Input.GetKey(KeyCode.S)) move.x = 1;
-        if (Input.GetKey(KeyCode.W)) move.x = -1;
+        Vector3 move = Vector3.zero; // move = new Vector3(0, 0, 0)
+
+        // 어택을 했으면 어택 애니메이션 진행중인 동안은 
+        // Run과 Idle을 하지 않게 하자
+        // 각 애니메이션의 길이가 필요하다.
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            //어택에니메이션이 끝났을때 state = None
+            StartCoroutine(AttackCo());
+        }
+
+        if (state != StateType.Attack)
+        {
+            move = MoveAndIdle(move);
+        }
+
+        transform.forward = Vector3.Slerp(transform.forward
+            , move, roateLerp);
+    }
+
+    IEnumerator AttackCo()
+    {
+        state = StateType.Attack;
+        animator.Play("Attack");
+        float attackAnimationTime = aimationLength["Attack"];
+        yield return new WaitForSeconds(attackAnimationTime);
+        state = StateType.None;
+    }
+
+    /// <summary>
+    /// Move/Idle애니메이션, 실제 이동
+    /// </summary>
+    /// <param name="move"></param>
+    /// <returns></returns>
+    Vector3 MoveAndIdle(Vector3 move)
+    {
+        if (Input.GetKey(KeyCode.A)) move.x = -1;
+        if (Input.GetKey(KeyCode.D)) move.x = 1;
+        if (Input.GetKey(KeyCode.W)) move.z = 1;
+        if (Input.GetKey(KeyCode.S)) move.z = -1;
 
         if (move != Vector3.zero)
         {
             move.Normalize();
-            transform.Translate(move * 5 * Time.deltaTime, Space.World);
+            transform.Translate(move * 5 * Time.deltaTime
+                , Space.World);
 
-            transform.forward = move;
+            //transform.forward = move; // 이코드 있으면 작동안함.
+            lastMoveDirection = move;
             state = StateType.Run;
             animator.Play("Run");
         }
         else
         {
-            lastMoveDirection = move;
+            move = lastMoveDirection;
             state = StateType.Idle;
             animator.Play("Idle");
-        }
-
-        //회전 부드럽게 하는 것
-        transform.forward = Vector3.Slerp(transform.forward, move, roateLerp);
-
+        };
+        return move;
     }
-    public float speed = 5; //1초당 유닛 : 1초당 5유닛을 간다.
+    public float speed = 5;
     public float roateLerp = 0.5f;
-        public Vector3 lastMoveDirection ;
+    public Vector3 lastMoveDirection;
 
     public StateType state = StateType.Idle;
     public enum StateType
     {
-    Idle,
-    Run,
-    Jump,
-    Attack,
+        None,  // 아무것도 안하는 상태, 어택이 끝나면 되는 상태
+        Idle,  // 가만있을때,...
+        Run,
+        Jump,
+        Attack,
     }
-
 }
