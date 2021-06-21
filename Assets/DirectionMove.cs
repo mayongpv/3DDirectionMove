@@ -15,8 +15,8 @@ public class DirectionMove : MonoBehaviour
         Vector3 move = Vector3.zero;
         if (Input.GetKey(KeyCode.A)) move.z = -1;
         if (Input.GetKey(KeyCode.D)) move.z = 1;
-        if (Input.GetKey(KeyCode.S)) move.x = -1;
-        if (Input.GetKey(KeyCode.W)) move.x = 1;
+        if (Input.GetKey(KeyCode.S)) move.x = 1;
+        if (Input.GetKey(KeyCode.W)) move.x = -1;
 
         if (move != Vector3.zero)
         {
