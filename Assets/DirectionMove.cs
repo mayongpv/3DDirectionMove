@@ -17,10 +17,10 @@ public class DirectionMove : MonoBehaviour
         if (Input.GetKey(KeyCode.S)) move.x = -1;
         if (Input.GetKey(KeyCode.W)) move.x = -1;
 
-        if (move == Vector3.zero)
+        if (move != Vector3.zero)
         {
             move.Normalize();
-            transform.Translate(move * 5 * Time.deltaTime);
+            transform.Translate(move * 5 * Time.deltaTime, Space.World);
 
             transform.forward = move;
         }
