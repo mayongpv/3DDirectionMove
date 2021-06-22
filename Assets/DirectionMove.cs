@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +11,6 @@ public class DirectionMove : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         lastMoveDirection = transform.forward;
-        lastMoveDirection = transform.forward;
 
         //애니메이션 길이를 애니메이터에서 가져오자.
         //// 
@@ -23,32 +22,27 @@ public class DirectionMove : MonoBehaviour
 
     //Dictionary<string, float> aimationLength = new Dictionary<string, float>();
 
-    Dictionary<string, float> aimationLength = new Dictionary<string, float>();
-
     void Update()
     {
+        Vector3 move = Vector3.zero; // move = new Vector3(0, 0, 0)
 
-        void Update()
+        // 어택을 했으면 어택 애니메이션 진행중인 동안은 
+        // Run과 Idle을 하지 않게 하자
+        // 각 애니메이션의 길이가 필요하다.
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            Vector3 move = Vector3.zero; // move = new Vector3(0, 0, 0)
-
-            // 어택을 했으면 어택 애니메이션 진행중인 동안은 
-            // Run과 Idle을 하지 않게 하자
-            // 각 애니메이션의 길이가 필요하다.
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                //어택에니메이션이 끝났을때 state = None
-                StartCoroutine(AttackCo());
-            }
-
-            if (state != StateType.Attack)
-            {
-                move = MoveAndIdle(move);
-            }
-
-            transform.forward = Vector3.Slerp(transform.forward
-                , move, roateLerp);
+            //어택에니메이션이 끝났을때 state = None
+            StartCoroutine(AttackCo());
         }
+
+        if (State != StateType.Attack)
+        {
+            move = MoveAndIdle(move);
+        }
+
+        transform.forward = Vector3.Slerp(transform.forward
+            , move, roateLerp);
+    }
 
     // 실제 애니메이션 길이보다 먼저 움직이게 하자.
     public float attackAnimationWaitTime = 0.9f;
